@@ -40,11 +40,12 @@ These are illustrative profiles, not physics-based terrain or vehicle models.
 
 ## Dashboard features
 
+- Separate Overview, Fleet, Analytics, and Alerts pages, accessible from the dashboard navigation and shareable with URL hash links.
 - Live fleet summary for reporting vehicles, active critical alerts, average temperature, and average fuel.
-- Vehicle table with environment, health, fault code, fuel, and last-seen time.
+- Fleet page with vehicle table, environment, health, fault code, fuel, and last-seen time.
 - Search by vehicle, fault, or environment, and filter by health status.
-- Per-vehicle temperature history with the critical-temperature threshold.
-- Alert activity with acknowledge and recovery status.
+- Analytics page with per-vehicle temperature history, critical-temperature threshold, and readings grouped by simulated site environment.
+- Alerts page with activity filters, acknowledge actions, and recovery status.
 - CSV export of locally collected telemetry history.
 - Responsive layout for desktop and mobile screens.
 

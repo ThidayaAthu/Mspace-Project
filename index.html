@@ -38,6 +38,13 @@
     .live-pill.disconnected { border-color: #633b34; color: var(--amber); background: #271a16; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; }
     .clock { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+    .primary-nav { display: flex; gap: 6px; margin: 18px 0 2px; padding: 5px; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; background: #0e161e; scrollbar-width: thin; }
+    .nav-link { display: inline-flex; align-items: center; gap: 8px; border: 1px solid transparent; border-radius: 8px; padding: 9px 14px; color: var(--muted); font-size: 12px; font-weight: 680; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s, border-color .15s; }
+    .nav-link:hover { color: #e8eef4; background: #17232d; }
+    .nav-link.active { border-color: #2a3c4a; background: #1a2834; color: #f2f6fa; }
+    .nav-icon { color: var(--dim); font-size: 15px; }
+    .nav-link.active .nav-icon { color: var(--green); }
+    .nav-badge { min-width: 18px; border-radius: 999px; padding: 2px 6px; background: #3b2022; color: #ff918b; text-align: center; font-size: 10px; }
     .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 26px 0 18px; }
     .page-heading h2 { margin: 0; font-size: 22px; letter-spacing: -.03em; }
     .page-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
@@ -58,6 +65,49 @@
     .metric-note { margin-top: 3px; color: var(--dim); font-size: 11px; }
     .metric.alerting .metric-value { color: var(--red); }
     .metric.warning .metric-value { color: var(--amber); }
+    .view-page { display: none; }
+    .view-page.active { display: block; animation: page-in .18s ease-out; }
+    @keyframes page-in { from { opacity: .65; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 2px 0 14px; }
+    .section-heading h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+    .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .overview-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, .75fr); gap: 14px; margin-top: 14px; }
+    .snapshot-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0 16px 16px; }
+    .snapshot-card { min-width: 0; border: 1px solid #263642; border-radius: 10px; padding: 13px; background: #0e171f; }
+    .snapshot-top { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+    .snapshot-name { color: #edf2f6; font-size: 12px; font-weight: 700; }
+    .snapshot-kind { margin-top: 3px; color: var(--dim); font-size: 10px; }
+    .snapshot-env { margin-top: 11px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .snapshot-reading { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; color: #cbd6de; font-size: 11px; }
+    .snapshot-reading strong { font-variant-numeric: tabular-nums; }
+    .overview-summary { display: flex; flex-direction: column; }
+    .summary-body { flex: 1; padding: 2px 18px 18px; }
+    .summary-row { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid #202c36; color: var(--muted); font-size: 12px; }
+    .summary-row:last-child { border-bottom: 0; }
+    .summary-row strong { color: #e3ebf1; font-variant-numeric: tabular-nums; }
+    .summary-note { margin: 15px 0 0; border-radius: 8px; padding: 11px; background: #15212b; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .summary-note.alerting { background: #2c1c1e; color: #ffaaa5; }
+    .text-link { border: 0; padding: 0; background: none; color: var(--blue); cursor: pointer; font-size: 11px; font-weight: 700; }
+    .text-link:hover { color: #a4c6ff; }
+    .environment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 14px; }
+    .environment-card { border: 1px solid var(--line); border-radius: 11px; padding: 16px; background: var(--panel); }
+    .environment-card h4 { margin: 0; color: #e8eef4; font-size: 12px; }
+    .environment-card p { margin: 6px 0 13px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .environment-card strong { display: block; font-size: 21px; font-variant-numeric: tabular-nums; }
+    .environment-card small { color: var(--dim); font-size: 10px; }
+    .chart-panel { margin-bottom: 14px; }
+    .analytics-note { margin-top: 14px; border: 1px solid var(--line); border-radius: 10px; padding: 13px 15px; background: #111a23; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .analytics-note strong { color: #e6edf2; }
+    .alert-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+    .alert-filter button { border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; background: var(--panel); color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 650; }
+    .alert-filter button.active { border-color: #6a3a39; background: #2d1d1f; color: #ffaca6; }
+    .alerts-page-list { min-height: 180px; }
+    .alerts-page-list .alert-empty { min-height: 180px; }
+    .alerts-page-list .alert-item { grid-template-columns: 9px minmax(0, 1fr) auto; gap: 14px; padding: 16px 10px; }
+    .alerts-page-list .alert-item strong { font-size: 13px; }
+    .alerts-page-list .alert-item small { font-size: 11px; }
+    .alerts-page-list .alert-item button { border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; }
+    .alerts-page-list .alert-item button:disabled { color: var(--dim); cursor: default; }
     .main-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, .85fr); gap: 14px; margin-top: 14px; }
     .panel { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
     .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 17px 18px 13px; }
@@ -115,6 +165,7 @@
     .footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; color: var(--dim); font-size: 10px; }
     @media (max-width: 900px) {
       .main-grid { grid-template-columns: 1fr; }
+      .overview-grid { grid-template-columns: 1fr; }
       .alerts-panel { min-height: 230px; }
       .alert-empty { min-height: 140px; }
     }
@@ -124,6 +175,8 @@
       .top-actions { flex-direction: column-reverse; align-items: flex-end; gap: 7px; }
       .clock { font-size: 11px; }
       .page-heading { align-items: flex-start; }
+      .primary-nav { margin-top: 12px; }
+      .nav-link { padding: 8px 10px; }
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
       .metric { min-height: 100px; padding: 13px; }
       .metric-value { font-size: 23px; }
@@ -131,6 +184,7 @@
       .alert-banner button { padding: 7px; }
       .panel-head { align-items: flex-start; flex-wrap: wrap; }
       .fleet-toolbar { width: 100%; }
+      .snapshot-list { grid-template-columns: 1fr; }
       .search-wrap { flex: 1; }
       .search-wrap input { width: 100%; }
       .chart-wrap { height: 210px; }
@@ -152,8 +206,15 @@
       </div>
     </header>
 
+    <nav class="primary-nav" aria-label="Main navigation">
+      <a class="nav-link" href="#overview" data-page-link="overview"><span class="nav-icon">⌂</span>Overview</a>
+      <a class="nav-link" href="#fleet" data-page-link="fleet"><span class="nav-icon">▣</span>Fleet</a>
+      <a class="nav-link" href="#analytics" data-page-link="analytics"><span class="nav-icon">⌁</span>Analytics</a>
+      <a class="nav-link" href="#alerts" data-page-link="alerts"><span class="nav-icon">⚠</span>Alerts <span class="nav-badge" id="navAlertCount">0</span></a>
+    </nav>
+
     <section class="page-heading">
-      <div><h2>Overview</h2><p>Live equipment health and field telemetry</p></div>
+      <div><h2 id="pageTitle">Overview</h2><p id="pageDescription">Live equipment health and field telemetry</p></div>
       <span class="tag demo-tag">◉ &nbsp; SIMULATED DATA</span>
     </section>
 
@@ -163,43 +224,77 @@
       <button id="bannerAck" type="button">Acknowledge</button>
     </section>
 
-    <section class="metrics" aria-label="Fleet summary">
-      <article class="metric"><div class="metric-top"><span>Reporting assets</span><span class="metric-icon">▣</span></div><div class="metric-value" id="assetCount">0</div><div class="metric-note">Telemetry received in the last 15 seconds</div></article>
-      <article class="metric" id="alertMetric"><div class="metric-top"><span>Active alerts</span><span class="metric-icon">⚠</span></div><div class="metric-value" id="alertCount">0</div><div class="metric-note">Vehicles above the 105 °C threshold</div></article>
-      <article class="metric" id="temperatureMetric"><div class="metric-top"><span>Fleet avg. temperature</span><span class="metric-icon">◌</span></div><div class="metric-value" id="avgTemperature">--</div><div class="metric-note">Latest reading per reporting vehicle</div></article>
-      <article class="metric"><div class="metric-top"><span>Fleet avg. fuel</span><span class="metric-icon">◒</span></div><div class="metric-value" id="avgFuel">--</div><div class="metric-note">Latest reading per reporting vehicle</div></article>
+    <section class="view-page" id="page-overview" data-page="overview">
+      <section class="metrics" aria-label="Fleet summary">
+        <article class="metric"><div class="metric-top"><span>Reporting assets</span><span class="metric-icon">▣</span></div><div class="metric-value" id="assetCount">0</div><div class="metric-note">Telemetry received in the last 15 seconds</div></article>
+        <article class="metric" id="alertMetric"><div class="metric-top"><span>Active alerts</span><span class="metric-icon">⚠</span></div><div class="metric-value" id="alertCount">0</div><div class="metric-note">Vehicles above the 105 °C threshold</div></article>
+        <article class="metric" id="temperatureMetric"><div class="metric-top"><span>Fleet avg. temperature</span><span class="metric-icon">◌</span></div><div class="metric-value" id="avgTemperature">--</div><div class="metric-note">Latest reading per reporting vehicle</div></article>
+        <article class="metric"><div class="metric-top"><span>Fleet avg. fuel</span><span class="metric-icon">◒</span></div><div class="metric-value" id="avgFuel">--</div><div class="metric-note">Latest reading per reporting vehicle</div></article>
+      </section>
+      <section class="overview-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <div><h3 class="panel-title">Fleet at a glance</h3><p class="panel-subtitle" id="fleetSubtitle">Waiting for telemetry</p></div>
+            <button class="text-link" type="button" data-go-page="fleet">View all vehicles →</button>
+          </div>
+          <div class="snapshot-list" id="overviewFleet"><div class="alert-empty">Waiting for simulator telemetry…</div></div>
+        </article>
+        <article class="panel overview-summary">
+          <div class="panel-head"><div><h3 class="panel-title">Operations summary</h3><p class="panel-subtitle">Current fleet snapshot</p></div></div>
+          <div class="summary-body">
+            <div class="summary-row"><span>Vehicles online</span><strong id="summaryOnline">0</strong></div>
+            <div class="summary-row"><span>Needs attention</span><strong id="summaryAttention">0</strong></div>
+            <div class="summary-row"><span>Last telemetry</span><strong id="summaryLastSeen">Waiting</strong></div>
+            <p class="summary-note" id="summaryNote">Start the simulator to see live fleet operations.</p>
+          </div>
+        </article>
+      </section>
     </section>
 
-    <section class="main-grid">
-      <article class="panel">
+    <section class="view-page" id="page-fleet" data-page="fleet">
+      <section class="panel fleet-panel" style="margin-top:0">
         <div class="panel-head">
-          <div><h3 class="panel-title">Engine temperature</h3><p class="panel-subtitle" id="chartSubtitle">Select a vehicle to view its recent trend</p></div>
+          <div><h3 class="panel-title">Fleet vehicles</h3><p class="panel-subtitle" id="fleetSubtitlePage">Live vehicle telemetry and site conditions</p></div>
+          <div class="fleet-toolbar">
+            <label class="search-wrap"><input id="searchInput" type="search" placeholder="Search vehicles…" aria-label="Search vehicles"></label>
+            <label class="select-wrap"><select id="statusFilter" aria-label="Filter by status"><option value="all">All status</option><option value="critical">Critical</option><option value="warning">Warning</option><option value="normal">Normal</option><option value="offline">Offline</option></select></label>
+            <button class="export-button" id="exportButton" type="button">↓ Export CSV</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Vehicle</th><th>Environment</th><th>Engine RPM</th><th>Speed</th><th>Temperature</th><th>Fuel</th><th>Fault code</th><th>Health</th><th>Last seen</th></tr></thead>
+            <tbody id="vehicleRows"><tr><td class="empty-row" colspan="9">Waiting for simulator telemetry…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="view-page" id="page-analytics" data-page="analytics">
+      <article class="panel chart-panel">
+        <div class="panel-head">
+          <div><h3 class="panel-title">Engine temperature trend</h3><p class="panel-subtitle" id="chartSubtitle">Select a vehicle to view its recent trend</p></div>
           <div class="chart-legend"><span class="legend-item"><i class="legend-line"></i>Temperature</span><span class="legend-item"><i class="legend-line threshold"></i>105 °C limit</span></div>
           <label class="select-wrap"><span class="eyebrow" style="position:absolute;left:-10000px">Chart vehicle</span><select id="vehicleSelect" aria-label="Select vehicle"><option value="">Select vehicle</option></select></label>
         </div>
         <div class="chart-wrap"><canvas id="trendChart" aria-label="Selected vehicle engine temperature trend"></canvas><div class="chart-empty" id="chartEmpty">Waiting for vehicle telemetry…</div></div>
       </article>
-      <article class="panel alerts-panel">
-        <div class="panel-head"><div><h3 class="panel-title">Alert activity</h3><p class="panel-subtitle">Most recent critical events</p></div><span class="count-badge" id="eventCount">0</span></div>
-        <div class="alert-list" id="alertList"><div class="alert-empty"><div>✓<span>No critical events yet</span></div></div></div>
-      </article>
+      <div class="section-heading"><div><h3>Operating environments</h3><p>Latest readings grouped by simulated site conditions</p></div></div>
+      <section class="environment-grid" id="environmentGrid"><div class="alert-empty">Waiting for site telemetry…</div></section>
+      <p class="analytics-note"><strong>How to read this page:</strong> select a vehicle to review recent engine-temperature readings. The dashed red line marks the prototype's 105 °C alert threshold. Readings are simulated and are not calibrated for real equipment.</p>
     </section>
 
-    <section class="panel fleet-panel">
-      <div class="panel-head">
-        <div><h3 class="panel-title">Fleet vehicles</h3><p class="panel-subtitle" id="fleetSubtitle">Waiting for telemetry</p></div>
-        <div class="fleet-toolbar">
-          <label class="search-wrap"><input id="searchInput" type="search" placeholder="Search vehicles…" aria-label="Search vehicles"></label>
-          <label class="select-wrap"><select id="statusFilter" aria-label="Filter by status"><option value="all">All status</option><option value="critical">Critical</option><option value="warning">Warning</option><option value="normal">Normal</option><option value="offline">Offline</option></select></label>
-          <button class="export-button" id="exportButton" type="button">↓ Export CSV</button>
-        </div>
+    <section class="view-page" id="page-alerts" data-page="alerts">
+      <div class="section-heading"><div><h3>Alert activity</h3><p id="alertPageSubtitle">Critical events and operator acknowledgements</p></div><span class="count-badge" id="eventCount">0</span></div>
+      <div class="alert-filter" role="group" aria-label="Filter alert activity">
+        <button type="button" class="active" data-alert-filter="all">All events</button>
+        <button type="button" data-alert-filter="needs-attention">Needs attention</button>
+        <button type="button" data-alert-filter="acknowledged">Acknowledged</button>
+        <button type="button" data-alert-filter="resolved">Resolved</button>
       </div>
-      <div class="table-scroll">
-        <table>
-          <thead><tr><th>Vehicle</th><th>Environment</th><th>Engine RPM</th><th>Speed</th><th>Temperature</th><th>Fuel</th><th>Fault code</th><th>Health</th><th>Last seen</th></tr></thead>
-          <tbody id="vehicleRows"><tr><td class="empty-row" colspan="9">Waiting for simulator telemetry…</td></tr></tbody>
-        </table>
-      </div>
+      <article class="panel alerts-page-list">
+        <div class="alert-list" id="alertList"><div class="alert-empty"><div>✓<span>No critical events yet</span></div></div></div>
+      </article>
     </section>
     <footer class="footer"><span>Prototype dashboard · Mock OBD-II readings · Not for operational decisions</span><span id="lastUpdated">Last update: --</span></footer>
   </main>
@@ -216,8 +311,51 @@
     let bannerAlertId = null;
     let searchQuery = "";
     let statusFilter = "all";
+    let alertFilter = "all";
+
+    const pages = {
+      overview: { title: "Overview", description: "Live equipment health and field telemetry" },
+      fleet: { title: "Fleet", description: "Vehicle status, telemetry, and working environments" },
+      analytics: { title: "Analytics", description: "Engine trends and environment-level readings" },
+      alerts: { title: "Alerts", description: "Review critical events and track operator response" }
+    };
 
     const byId = (id) => document.getElementById(id);
+    function showPage(pageName) {
+      const page = pages[pageName] ? pageName : "overview";
+      document.querySelectorAll(".view-page").forEach((view) => {
+        view.classList.toggle("active", view.dataset.page === page);
+      });
+      document.querySelectorAll("[data-page-link]").forEach((link) => {
+        const active = link.dataset.pageLink === page;
+        link.classList.toggle("active", active);
+        if (active) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      });
+      byId("pageTitle").textContent = pages[page].title;
+      byId("pageDescription").textContent = pages[page].description;
+      document.title = `Fieldline | ${pages[page].title}`;
+      if (page === "analytics") requestAnimationFrame(renderChart);
+    }
+
+    function navigateTo(pageName) {
+      const page = pages[pageName] ? pageName : "overview";
+      if (location.hash !== `#${page}`) location.hash = page;
+      else showPage(page);
+    }
+
+    document.querySelectorAll("[data-page-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        navigateTo(link.dataset.pageLink);
+      });
+    });
+    document.querySelectorAll("[data-go-page]").forEach((button) => {
+      button.addEventListener("click", () => navigateTo(button.dataset.goPage));
+    });
+    window.addEventListener("hashchange", () => showPage(location.hash.slice(1)));
+    showPage(location.hash.slice(1));
+
     const eventStream = new EventSource("/events");
     const connection = byId("connection");
     eventStream.onopen = () => {
@@ -310,16 +448,111 @@
         : null;
       byId("assetCount").textContent = String(reporting.length);
       byId("alertCount").textContent = String(activeAlerts);
+      byId("navAlertCount").textContent = String(activeAlerts);
       byId("avgTemperature").textContent = average("engine_temp_c") === null ? "--" : `${average("engine_temp_c").toFixed(1)}°`;
       byId("avgFuel").textContent = average("fuel_pct") === null ? "--" : `${average("fuel_pct").toFixed(0)}%`;
       byId("alertMetric").classList.toggle("alerting", activeAlerts > 0);
       byId("temperatureMetric").classList.toggle("warning", average("engine_temp_c") !== null && average("engine_temp_c") >= WARNING_TEMP);
       byId("fleetSubtitle").textContent = `${vehicles.size} vehicle${vehicles.size === 1 ? "" : "s"} seen · ${reporting.length} reporting`;
+      byId("fleetSubtitlePage").textContent = `${vehicles.size} vehicle${vehicles.size === 1 ? "" : "s"} seen · ${reporting.length} reporting · Select a row to view its trend`;
+      byId("summaryOnline").textContent = String(reporting.length);
+      byId("summaryAttention").textContent = String(activeAlerts + reporting.filter((item) => healthFor(item, now) === "warning").length);
+      const latest = reporting.reduce((newest, item) => Math.max(newest, item.receivedAt), 0);
+      byId("summaryLastSeen").textContent = latest ? `${Math.max(0, Math.floor((now - latest) / 1000))}s ago` : "Waiting";
+      const summaryNote = byId("summaryNote");
+      summaryNote.classList.toggle("alerting", activeAlerts > 0);
+      summaryNote.textContent = activeAlerts
+        ? `${activeAlerts} vehicle${activeAlerts === 1 ? " needs" : "s need"} immediate attention. Review the active alert and inspect the simulated equipment.`
+        : reporting.length
+          ? "No active critical engine alerts. Fleet readings are updating live."
+          : "Start the simulator to see live fleet operations.";
       byId("lastUpdated").textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+      renderOverview(reporting, now);
       renderFleet(now);
       renderChart();
+      renderEnvironments();
       renderAlerts();
       updateBanner();
+    }
+
+    function renderOverview(reporting, now) {
+      const container = byId("overviewFleet");
+      container.replaceChildren();
+      if (!reporting.length) {
+        const empty = document.createElement("div");
+        empty.className = "alert-empty";
+        empty.textContent = "Waiting for simulator telemetry…";
+        container.append(empty);
+        return;
+      }
+      const ordered = [...reporting].sort((a, b) => {
+        const severity = { critical: 0, warning: 1, normal: 2, offline: 3 };
+        return severity[healthFor(a, now)] - severity[healthFor(b, now)];
+      });
+      for (const item of ordered.slice(0, 6)) {
+        const health = healthFor(item, now);
+        const card = document.createElement("article");
+        card.className = "snapshot-card";
+        const top = document.createElement("div");
+        top.className = "snapshot-top";
+        const identity = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "snapshot-name";
+        name.textContent = item.vehicle;
+        const type = document.createElement("div");
+        type.className = "snapshot-kind";
+        type.textContent = item.vehicle_type || "Construction equipment";
+        identity.append(name, type);
+        const status = document.createElement("span");
+        status.className = `status ${health}`;
+        status.textContent = health.toUpperCase();
+        top.append(identity, status);
+        const environment = document.createElement("div");
+        environment.className = "snapshot-env";
+        environment.textContent = item.environment || "Site not specified";
+        const reading = document.createElement("div");
+        reading.className = "snapshot-reading";
+        const temperature = document.createElement("strong");
+        temperature.textContent = `${Number(item.engine_temp_c).toFixed(1)} °C`;
+        const fuel = document.createElement("span");
+        fuel.textContent = `Fuel ${Number(item.fuel_pct).toFixed(0)}%`;
+        reading.append(temperature, fuel);
+        card.append(top, environment, reading);
+        container.append(card);
+      }
+    }
+
+    function renderEnvironments() {
+      const container = byId("environmentGrid");
+      const groups = new Map();
+      for (const item of vehicles.values()) {
+        const label = item.environment || "Environment not specified";
+        if (!groups.has(label)) groups.set(label, []);
+        groups.get(label).push(item);
+      }
+      container.replaceChildren();
+      if (!groups.size) {
+        const empty = document.createElement("div");
+        empty.className = "alert-empty";
+        empty.textContent = "Waiting for site telemetry…";
+        container.append(empty);
+        return;
+      }
+      for (const [environment, items] of groups) {
+        const card = document.createElement("article");
+        card.className = "environment-card";
+        const title = document.createElement("h4");
+        title.textContent = environment;
+        const description = document.createElement("p");
+        description.textContent = `${items.map((item) => item.vehicle).join(", ")} · ${items.length} asset${items.length === 1 ? "" : "s"}`;
+        const average = items.reduce((total, item) => total + Number(item.engine_temp_c), 0) / items.length;
+        const temperature = document.createElement("strong");
+        temperature.textContent = `${average.toFixed(1)} °C`;
+        const note = document.createElement("small");
+        note.textContent = `Average engine temperature · ${items.filter((item) => healthFor(item) === "critical").length} critical`;
+        card.append(title, description, temperature, note);
+        container.append(card);
+      }
     }
 
     function renderFleet(now) {
@@ -384,8 +617,9 @@
         : "Select a vehicle to view its recent trend";
       const canvas = byId("trendChart");
       const empty = byId("chartEmpty");
-      const context = canvas.getContext("2d");
       const bounds = canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      const context = canvas.getContext("2d");
       const ratio = window.devicePixelRatio || 1;
       canvas.width = Math.max(1, Math.floor(bounds.width * ratio));
       canvas.height = Math.max(1, Math.floor(bounds.height * ratio));
@@ -457,14 +691,23 @@
       const list = byId("alertList");
       byId("eventCount").textContent = String(alerts.length);
       list.replaceChildren();
-      if (!alerts.length) {
+      const filteredAlerts = alerts.filter((alert) => {
+        if (alertFilter === "needs-attention") return !alert.acknowledged && !alert.resolved;
+        if (alertFilter === "acknowledged") return alert.acknowledged && !alert.resolved;
+        if (alertFilter === "resolved") return alert.resolved;
+        return true;
+      });
+      byId("alertPageSubtitle").textContent = `${alerts.length} total event${alerts.length === 1 ? "" : "s"} · ${alerts.filter((alert) => !alert.acknowledged && !alert.resolved).length} need attention`;
+      if (!filteredAlerts.length) {
         const empty = document.createElement("div");
         empty.className = "alert-empty";
-        empty.innerHTML = "<div>✓<span>No critical events yet</span></div>";
+        empty.innerHTML = alerts.length
+          ? "<div>✓<span>No events match this filter</span></div>"
+          : "<div>✓<span>No critical events yet</span></div>";
         list.append(empty);
         return;
       }
-      for (const alert of alerts) {
+      for (const alert of filteredAlerts) {
         const entry = document.createElement("div");
         entry.className = `alert-item${alert.acknowledged || alert.resolved ? " acknowledged" : ""}`;
         const dot = document.createElement("span");
@@ -534,6 +777,15 @@
       renderFleet(Date.now());
     });
     byId("exportButton").addEventListener("click", exportCsv);
+    document.querySelectorAll("[data-alert-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        alertFilter = button.dataset.alertFilter;
+        document.querySelectorAll("[data-alert-filter]").forEach((filterButton) => {
+          filterButton.classList.toggle("active", filterButton === button);
+        });
+        renderAlerts();
+      });
+    });
     window.addEventListener("resize", renderChart);
     setInterval(() => {
       byId("clock").textContent = new Date().toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
