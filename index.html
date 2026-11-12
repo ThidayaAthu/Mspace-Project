@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1117">
+  <title>Fieldline | Fleet Operations</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b1117;
+      color: #e8eef4;
+      font-synthesis: none;
+      --panel: #111a23;
+      --panel-raised: #15212c;
+      --line: #253441;
+      --muted: #91a2b1;
+      --dim: #687987;
+      --green: #42d392;
+      --amber: #ffbf5b;
+      --red: #ff625e;
+      --blue: #6ea8fe;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .shell { max-width: 1500px; margin: 0 auto; padding: 28px clamp(16px, 3vw, 40px) 40px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid #315344; border-radius: 12px; background: #152a24; color: var(--green); font-size: 20px; }
+    .eyebrow { color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { margin: 2px 0 0; font-size: clamp(20px, 3vw, 27px); letter-spacing: -.04em; }
+    .top-actions { display: flex; align-items: center; gap: 14px; }
+    .live-pill, .tag { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; color: var(--muted); font-size: 12px; font-weight: 650; white-space: nowrap; }
+    .live-pill.connected { border-color: #28523f; color: var(--green); background: #12231d; }
+    .live-pill.disconnected { border-color: #633b34; color: var(--amber); background: #271a16; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; }
+    .clock { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 26px 0 18px; }
+    .page-heading h2 { margin: 0; font-size: 22px; letter-spacing: -.03em; }
+    .page-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .demo-tag { color: #aac7ff; border-color: #304466; background: #151f30; }
+    .alert-banner { display: none; align-items: center; gap: 14px; margin: 0 0 18px; padding: 14px 16px; border: 1px solid #803c3a; border-radius: 12px; background: linear-gradient(105deg, #391d20, #25191c); }
+    .alert-banner.visible { display: flex; }
+    .alert-icon { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 10px; background: #632a2a; color: #ff9790; font-weight: 900; }
+    .alert-copy { min-width: 0; flex: 1; }
+    .alert-copy strong { display: block; color: #ffb1ab; font-size: 13px; letter-spacing: .07em; }
+    .alert-copy span { display: block; margin-top: 3px; color: #e8c1be; font-size: 13px; }
+    .alert-banner button { border: 1px solid #754340; border-radius: 8px; padding: 8px 11px; background: #3a2223; color: #ffd3cf; cursor: pointer; font-size: 12px; font-weight: 700; }
+    .alert-banner button:hover { background: #512b2c; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+    .metric { min-height: 112px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; font-weight: 650; }
+    .metric-icon { color: var(--dim); font-size: 16px; }
+    .metric-value { margin-top: 13px; font-size: 27px; font-weight: 720; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+    .metric-note { margin-top: 3px; color: var(--dim); font-size: 11px; }
+    .metric.alerting .metric-value { color: var(--red); }
+    .metric.warning .metric-value { color: var(--amber); }
+    .main-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, .85fr); gap: 14px; margin-top: 14px; }
+    .panel { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 17px 18px 13px; }
+    .panel-title { margin: 0; font-size: 14px; font-weight: 700; }
+    .panel-subtitle { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .select-wrap select, .search-wrap input { border: 1px solid var(--line); border-radius: 8px; outline: none; background: #0d151c; color: #dce5eb; }
+    .select-wrap select { max-width: 190px; padding: 8px 30px 8px 10px; font-size: 12px; }
+    .select-wrap select:focus, .search-wrap input:focus { border-color: #527cb7; }
+    .chart-wrap { height: 250px; padding: 0 12px 12px; }
+    #trendChart { display: block; width: 100%; height: 100%; }
+    .chart-legend { display: flex; align-items: center; gap: 15px; color: var(--muted); font-size: 11px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-line { width: 14px; height: 2px; border-radius: 2px; background: var(--blue); }
+    .legend-line.threshold { background: var(--red); }
+    .chart-empty { display: none; height: 100%; place-items: center; color: var(--dim); font-size: 12px; }
+    .chart-empty.visible { display: grid; }
+    .alerts-panel { display: flex; min-height: 330px; flex-direction: column; }
+    .count-badge { min-width: 22px; padding: 3px 7px; border-radius: 999px; background: #382122; color: #ff8e88; text-align: center; font-size: 11px; font-weight: 750; }
+    .alert-list { flex: 1; padding: 0 12px 12px; overflow: auto; }
+    .alert-empty { display: grid; min-height: 245px; place-items: center; color: var(--dim); text-align: center; font-size: 12px; }
+    .alert-empty span { display: block; margin-top: 8px; }
+    .alert-item { display: grid; grid-template-columns: 8px 1fr auto; gap: 10px; align-items: start; padding: 12px 6px; border-bottom: 1px solid #202c36; }
+    .alert-item:last-child { border-bottom: 0; }
+    .alert-item-dot { width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: var(--red); }
+    .alert-item.acknowledged .alert-item-dot { background: var(--green); }
+    .alert-item strong { display: block; font-size: 12px; }
+    .alert-item small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .alert-item button { border: 0; background: transparent; color: var(--blue); cursor: pointer; font-size: 10px; font-weight: 700; }
+    .fleet-panel { margin-top: 14px; }
+    .fleet-toolbar { display: flex; align-items: center; gap: 8px; }
+    .search-wrap input { width: 175px; padding: 8px 10px; font-size: 12px; }
+    .export-button { border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; background: #17232e; color: #dce5eb; cursor: pointer; font-size: 12px; font-weight: 650; }
+    .export-button:hover { border-color: #526878; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th { padding: 10px 16px; border-top: 1px solid #202c36; border-bottom: 1px solid #202c36; color: var(--dim); text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+    td { padding: 12px 16px; border-bottom: 1px solid #1d2933; color: #ced8df; font-size: 12px; font-variant-numeric: tabular-nums; }
+    tbody tr { cursor: pointer; transition: background .15s; }
+    tbody tr:hover, tbody tr.selected { background: #16232d; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .vehicle-cell { display: flex; align-items: center; gap: 10px; }
+    .vehicle-avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; background: #202f3b; color: #a9c5d9; font-size: 13px; }
+    .vehicle-name { color: #edf2f6; font-weight: 680; }
+    .vehicle-kind { margin-top: 3px; color: var(--dim); font-size: 10px; }
+    .status { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 8px; background: #183126; color: var(--green); font-size: 10px; font-weight: 750; }
+    .status.warning { background: #332819; color: var(--amber); }
+    .status.critical { background: #3b2022; color: #ff8580; }
+    .status.offline { background: #222b32; color: #8998a4; }
+    .fuel-track { display: inline-block; width: 50px; height: 5px; margin-right: 7px; overflow: hidden; border-radius: 9px; background: #2a3843; vertical-align: middle; }
+    .fuel-fill { display: block; height: 100%; border-radius: inherit; background: var(--green); }
+    .fuel-fill.low { background: var(--amber); }
+    .fault-code { color: var(--muted); }
+    .fault-code.has-fault { color: var(--red); font-weight: 700; }
+    .empty-row { padding: 32px; color: var(--dim); text-align: center; }
+    .footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; color: var(--dim); font-size: 10px; }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .alerts-panel { min-height: 230px; }
+      .alert-empty { min-height: 140px; }
+    }
+    @media (max-width: 620px) {
+      .shell { padding-top: 16px; }
+      .topbar { align-items: flex-start; }
+      .top-actions { flex-direction: column-reverse; align-items: flex-end; gap: 7px; }
+      .clock { font-size: 11px; }
+      .page-heading { align-items: flex-start; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .metric { min-height: 100px; padding: 13px; }
+      .metric-value { font-size: 23px; }
+      .alert-banner { align-items: flex-start; }
+      .alert-banner button { padding: 7px; }
+      .panel-head { align-items: flex-start; flex-wrap: wrap; }
+      .fleet-toolbar { width: 100%; }
+      .search-wrap { flex: 1; }
+      .search-wrap input { width: 100%; }
+      .chart-wrap { height: 210px; }
+      .footer { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">▰</div>
+        <div><div class="eyebrow">Fieldline / Operations</div><h1>Fleet command</h1></div>
+      </div>
+      <div class="top-actions">
+        <time class="clock" id="clock">--</time>
+        <span class="live-pill" id="connection"><span class="dot"></span><span id="connectionText">Connecting</span></span>
+      </div>
+    </header>
+
+    <section class="page-heading">
+      <div><h2>Overview</h2><p>Live equipment health and field telemetry</p></div>
+      <span class="tag demo-tag">◉ &nbsp; SIMULATED DATA</span>
+    </section>
+
+    <section class="alert-banner" id="alertBanner" role="alert" aria-live="assertive">
+      <span class="alert-icon" aria-hidden="true">!</span>
+      <div class="alert-copy"><strong>CRITICAL ALERT</strong><span id="bannerMessage"></span></div>
+      <button id="bannerAck" type="button">Acknowledge</button>
+    </section>
+
+    <section class="metrics" aria-label="Fleet summary">
+      <article class="metric"><div class="metric-top"><span>Reporting assets</span><span class="metric-icon">▣</span></div><div class="metric-value" id="assetCount">0</div><div class="metric-note">Telemetry received in the last 15 seconds</div></article>
+      <article class="metric" id="alertMetric"><div class="metric-top"><span>Active alerts</span><span class="metric-icon">⚠</span></div><div class="metric-value" id="alertCount">0</div><div class="metric-note">Vehicles above the 105 °C threshold</div></article>
+      <article class="metric" id="temperatureMetric"><div class="metric-top"><span>Fleet avg. temperature</span><span class="metric-icon">◌</span></div><div class="metric-value" id="avgTemperature">--</div><div class="metric-note">Latest reading per reporting vehicle</div></article>
+      <article class="metric"><div class="metric-top"><span>Fleet avg. fuel</span><span class="metric-icon">◒</span></div><div class="metric-value" id="avgFuel">--</div><div class="metric-note">Latest reading per reporting vehicle</div></article>
+    </section>
+
+    <section class="main-grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div><h3 class="panel-title">Engine temperature</h3><p class="panel-subtitle" id="chartSubtitle">Select a vehicle to view its recent trend</p></div>
+          <div class="chart-legend"><span class="legend-item"><i class="legend-line"></i>Temperature</span><span class="legend-item"><i class="legend-line threshold"></i>105 °C limit</span></div>
+          <label class="select-wrap"><span class="eyebrow" style="position:absolute;left:-10000px">Chart vehicle</span><select id="vehicleSelect" aria-label="Select vehicle"><option value="">Select vehicle</option></select></label>
+        </div>
+        <div class="chart-wrap"><canvas id="trendChart" aria-label="Selected vehicle engine temperature trend"></canvas><div class="chart-empty" id="chartEmpty">Waiting for vehicle telemetry…</div></div>
+      </article>
+      <article class="panel alerts-panel">
+        <div class="panel-head"><div><h3 class="panel-title">Alert activity</h3><p class="panel-subtitle">Most recent critical events</p></div><span class="count-badge" id="eventCount">0</span></div>
+        <div class="alert-list" id="alertList"><div class="alert-empty"><div>✓<span>No critical events yet</span></div></div></div>
+      </article>
+    </section>
+
+    <section class="panel fleet-panel">
+      <div class="panel-head">
+        <div><h3 class="panel-title">Fleet vehicles</h3><p class="panel-subtitle" id="fleetSubtitle">Waiting for telemetry</p></div>
+        <div class="fleet-toolbar">
+          <label class="search-wrap"><input id="searchInput" type="search" placeholder="Search vehicles…" aria-label="Search vehicles"></label>
+          <label class="select-wrap"><select id="statusFilter" aria-label="Filter by status"><option value="all">All status</option><option value="critical">Critical</option><option value="warning">Warning</option><option value="normal">Normal</option><option value="offline">Offline</option></select></label>
+          <button class="export-button" id="exportButton" type="button">↓ Export CSV</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Vehicle</th><th>Engine RPM</th><th>Speed</th><th>Temperature</th><th>Fuel</th><th>Fault code</th><th>Health</th><th>Last seen</th></tr></thead>
+          <tbody id="vehicleRows"><tr><td class="empty-row" colspan="8">Waiting for simulator telemetry…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+    <footer class="footer"><span>Prototype dashboard · Mock OBD-II readings · Not for operational decisions</span><span id="lastUpdated">Last update: --</span></footer>
+  </main>
+
+  <script>
+    "use strict";
+    const CRITICAL_TEMP = 105;
+    const WARNING_TEMP = 98;
+    const STALE_AFTER_MS = 15000;
+    const MAX_POINTS = 60;
+    const vehicles = new Map();
+    const alerts = [];
+    let selectedVehicle = "";
+    let bannerAlertId = null;
+    let searchQuery = "";
+    let statusFilter = "all";
+
+    const byId = (id) => document.getElementById(id);
+    const eventStream = new EventSource("/events");
+    const connection = byId("connection");
+    eventStream.onopen = () => {
+      connection.className = "live-pill connected";
+      byId("connectionText").textContent = "Live stream";
+    };
+    eventStream.onerror = () => {
+      connection.className = "live-pill disconnected";
+      byId("connectionText").textContent = "Reconnecting";
+    };
+    eventStream.onmessage = ({ data }) => {
+      try {
+        const event = JSON.parse(data);
+        if (event.type === "telemetry") updateTelemetry(event.data);
+        if (event.type === "alert") registerAlert(event.vehicle, Number(event.temperature));
+      } catch (error) {
+        console.error("Could not process fleet event:", error);
+      }
+    };
+
+    function updateTelemetry(reading) {
+      if (typeof reading.vehicle !== "string" || !reading.vehicle) return;
+      const previous = vehicles.get(reading.vehicle);
+      const receivedAt = Date.now();
+      const history = previous ? previous.history : [];
+      history.push({ time: receivedAt, temperature: Number(reading.engine_temp_c) });
+      if (history.length > MAX_POINTS) history.shift();
+      const record = { ...reading, history, receivedAt };
+      vehicles.set(reading.vehicle, record);
+      if (!selectedVehicle) selectedVehicle = reading.vehicle;
+      updateVehicleOptions();
+      if (record.critical && (!previous || !previous.critical)) registerAlert(record.vehicle, Number(record.engine_temp_c));
+      renderDashboard();
+    }
+
+    function registerAlert(vehicle, temperature) {
+      if (alerts.some((item) => item.vehicle === vehicle && !item.resolved)) {
+        renderAlerts();
+        return;
+      }
+      const item = {
+        id: `${vehicle}-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`,
+        vehicle,
+        temperature,
+        time: Date.now(),
+        acknowledged: false,
+        resolved: false
+      };
+      alerts.unshift(item);
+      if (alerts.length > 30) alerts.pop();
+      bannerAlertId = item.id;
+      renderAlerts();
+      updateBanner();
+    }
+
+    function updateVehicleOptions() {
+      const select = byId("vehicleSelect");
+      const current = select.value || selectedVehicle;
+      const names = [...vehicles.keys()].sort((a, b) => a.localeCompare(b));
+      select.replaceChildren(new Option("Select vehicle", ""));
+      for (const name of names) select.add(new Option(name, name));
+      if (names.includes(current)) {
+        select.value = current;
+        selectedVehicle = current;
+      } else if (names.length) {
+        select.value = names[0];
+        selectedVehicle = names[0];
+      }
+    }
+
+    function healthFor(vehicle, now = Date.now()) {
+      if (now - vehicle.receivedAt > STALE_AFTER_MS) return "offline";
+      if (vehicle.critical || Number(vehicle.engine_temp_c) >= CRITICAL_TEMP) return "critical";
+      if (Number(vehicle.engine_temp_c) >= WARNING_TEMP || Number(vehicle.fuel_pct) < 15) return "warning";
+      return "normal";
+    }
+
+    function renderDashboard() {
+      const now = Date.now();
+      const reporting = [...vehicles.values()].filter((item) => now - item.receivedAt <= STALE_AFTER_MS);
+      const activeAlerts = reporting.filter((item) => healthFor(item, now) === "critical").length;
+      const average = (field) => reporting.length
+        ? reporting.reduce((sum, item) => sum + Number(item[field]), 0) / reporting.length
+        : null;
+      byId("assetCount").textContent = String(reporting.length);
+      byId("alertCount").textContent = String(activeAlerts);
+      byId("avgTemperature").textContent = average("engine_temp_c") === null ? "--" : `${average("engine_temp_c").toFixed(1)}°`;
+      byId("avgFuel").textContent = average("fuel_pct") === null ? "--" : `${average("fuel_pct").toFixed(0)}%`;
+      byId("alertMetric").classList.toggle("alerting", activeAlerts > 0);
+      byId("temperatureMetric").classList.toggle("warning", average("engine_temp_c") !== null && average("engine_temp_c") >= WARNING_TEMP);
+      byId("fleetSubtitle").textContent = `${vehicles.size} vehicle${vehicles.size === 1 ? "" : "s"} seen · ${reporting.length} reporting`;
+      byId("lastUpdated").textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+      renderFleet(now);
+      renderChart();
+      renderAlerts();
+      updateBanner();
+    }
+
+    function renderFleet(now) {
+      const body = byId("vehicleRows");
+      const query = searchQuery.trim().toLowerCase();
+      const items = [...vehicles.entries()]
+        .map(([name, item]) => ({ name, item, health: healthFor(item, now) }))
+        .filter(({ name, item, health }) =>
+          (!query || `${name} ${item.fault_code}`.toLowerCase().includes(query)) &&
+          (statusFilter === "all" || health === statusFilter))
+        .sort((a, b) => {
+          const order = { critical: 0, warning: 1, normal: 2, offline: 3 };
+          return order[a.health] - order[b.health] || a.name.localeCompare(b.name);
+        });
+      body.replaceChildren();
+      if (!items.length) {
+        const row = body.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 8;
+        cell.className = "empty-row";
+        cell.textContent = vehicles.size ? "No vehicles match these filters." : "Waiting for simulator telemetry…";
+        return;
+      }
+      for (const { name, item, health } of items) {
+        const row = body.insertRow();
+        row.className = name === selectedVehicle ? "selected" : "";
+        row.addEventListener("click", () => {
+          selectedVehicle = name;
+          byId("vehicleSelect").value = name;
+          renderFleet(now);
+          renderChart();
+        });
+        const vehicleCell = row.insertCell();
+        vehicleCell.innerHTML = `<div class="vehicle-cell"><span class="vehicle-avatar" aria-hidden="true">▰</span><span><span class="vehicle-name"></span><span class="vehicle-kind">Construction equipment</span></span></div>`;
+        vehicleCell.querySelector(".vehicle-name").textContent = name;
+        row.insertCell().textContent = Math.round(Number(item.rpm)).toLocaleString();
+        row.insertCell().textContent = `${Number(item.speed_kph).toFixed(1)} km/h`;
+        const temp = row.insertCell();
+        temp.textContent = `${Number(item.engine_temp_c).toFixed(1)} °C`;
+        if (health === "critical") temp.className = "critical";
+        else if (health === "warning") temp.style.color = "var(--amber)";
+        const fuel = row.insertCell();
+        const fuelValue = Math.max(0, Math.min(100, Number(item.fuel_pct)));
+        fuel.innerHTML = `<span class="fuel-track"><span class="fuel-fill${fuelValue < 15 ? " low" : ""}" style="width:${fuelValue}%"></span></span>`;
+        fuel.append(document.createTextNode(`${fuelValue.toFixed(0)}%`));
+        const fault = row.insertCell();
+        fault.textContent = item.fault_code || "—";
+        fault.className = `fault-code${item.fault_code && item.fault_code !== "None" ? " has-fault" : ""}`;
+        const status = row.insertCell();
+        status.innerHTML = `<span class="status ${health}"><span class="dot"></span>${health.toUpperCase()}</span>`;
+        row.insertCell().textContent = `${Math.max(0, Math.floor((now - item.receivedAt) / 1000))}s ago`;
+      }
+    }
+
+    function renderChart() {
+      const item = vehicles.get(selectedVehicle);
+      byId("chartSubtitle").textContent = item ? `${selectedVehicle} · Last ${item.history.length} readings` : "Select a vehicle to view its recent trend";
+      const canvas = byId("trendChart");
+      const empty = byId("chartEmpty");
+      const context = canvas.getContext("2d");
+      const bounds = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(bounds.width * ratio));
+      canvas.height = Math.max(1, Math.floor(bounds.height * ratio));
+      context.scale(ratio, ratio);
+      context.clearRect(0, 0, bounds.width, bounds.height);
+      if (!item || item.history.length < 2) {
+        empty.classList.add("visible");
+        return;
+      }
+      empty.classList.remove("visible");
+      const pad = { left: 37, right: 12, top: 14, bottom: 24 };
+      const width = bounds.width - pad.left - pad.right;
+      const height = bounds.height - pad.top - pad.bottom;
+      const values = item.history.map((point) => point.temperature);
+      const low = Math.min(70, Math.floor((Math.min(...values) - 5) / 10) * 10);
+      const high = Math.max(CRITICAL_TEMP + 10, Math.ceil((Math.max(...values) + 5) / 10) * 10);
+      const x = (index) => pad.left + (index / (values.length - 1)) * width;
+      const y = (value) => pad.top + ((high - value) / (high - low)) * height;
+      context.font = "10px system-ui, sans-serif";
+      context.textBaseline = "middle";
+      for (let tick = Math.ceil(low / 10) * 10; tick <= high; tick += 10) {
+        const tickY = y(tick);
+        context.beginPath();
+        context.strokeStyle = "#263541";
+        context.lineWidth = 1;
+        context.moveTo(pad.left, tickY);
+        context.lineTo(bounds.width - pad.right, tickY);
+        context.stroke();
+        context.fillStyle = "#7f909d";
+        context.textAlign = "right";
+        context.fillText(`${tick}°`, pad.left - 7, tickY);
+      }
+      const thresholdY = y(CRITICAL_TEMP);
+      context.save();
+      context.setLineDash([5, 5]);
+      context.strokeStyle = "#ff625e";
+      context.beginPath();
+      context.moveTo(pad.left, thresholdY);
+      context.lineTo(bounds.width - pad.right, thresholdY);
+      context.stroke();
+      context.restore();
+      context.beginPath();
+      values.forEach((value, index) => {
+        if (index === 0) context.moveTo(x(index), y(value));
+        else context.lineTo(x(index), y(value));
+      });
+      context.lineWidth = 2.5;
+      context.lineJoin = "round";
+      context.lineCap = "round";
+      context.strokeStyle = "#78aaff";
+      context.stroke();
+      const gradient = context.createLinearGradient(0, pad.top, 0, pad.top + height);
+      gradient.addColorStop(0, "rgba(110, 168, 254, .20)");
+      gradient.addColorStop(1, "rgba(110, 168, 254, 0)");
+      context.lineTo(x(values.length - 1), pad.top + height);
+      context.lineTo(x(0), pad.top + height);
+      context.closePath();
+      context.fillStyle = gradient;
+      context.fill();
+      context.fillStyle = "#7f909d";
+      context.textAlign = "left";
+      context.textBaseline = "bottom";
+      context.fillText("OLDER", pad.left, bounds.height - 4);
+      context.textAlign = "right";
+      context.fillText("NOW", bounds.width - pad.right, bounds.height - 4);
+    }
+
+    function renderAlerts() {
+      const list = byId("alertList");
+      byId("eventCount").textContent = String(alerts.length);
+      list.replaceChildren();
+      if (!alerts.length) {
+        const empty = document.createElement("div");
+        empty.className = "alert-empty";
+        empty.innerHTML = "<div>✓<span>No critical events yet</span></div>";
+        list.append(empty);
+        return;
+      }
+      for (const alert of alerts) {
+        const entry = document.createElement("div");
+        entry.className = `alert-item${alert.acknowledged ? " acknowledged" : ""}`;
+        const dot = document.createElement("span");
+        dot.className = "alert-item-dot";
+        const copy = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = `${alert.vehicle} · Engine overheating`;
+        const detail = document.createElement("small");
+        detail.textContent = `${alert.temperature.toFixed(1)} °C · ${new Date(alert.time).toLocaleTimeString()}${alert.acknowledged ? " · Acknowledged" : ""}`;
+        copy.append(title, detail);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = alert.acknowledged ? "ACK'D" : "ACK";
+        button.disabled = alert.acknowledged;
+        button.setAttribute("aria-label", `Acknowledge alert for ${alert.vehicle}`);
+        button.addEventListener("click", () => acknowledgeAlert(alert.id));
+        entry.append(dot, copy, button);
+        list.append(entry);
+      }
+    }
+
+    function updateBanner() {
+      const banner = byId("alertBanner");
+      const alert = alerts.find((item) => item.id === bannerAlertId && !item.acknowledged);
+      banner.classList.toggle("visible", Boolean(alert));
+      if (!alert) return;
+      byId("bannerMessage").textContent = `${alert.vehicle} engine at ${alert.temperature.toFixed(1)} °C — stop equipment and inspect.`;
+      byId("bannerAck").onclick = () => acknowledgeAlert(alert.id);
+    }
+
+    function acknowledgeAlert(id) {
+      const alert = alerts.find((item) => item.id === id);
+      if (!alert) return;
+      alert.acknowledged = true;
+      if (bannerAlertId === id) bannerAlertId = null;
+      renderAlerts();
+      updateBanner();
+    }
+
+    function exportCsv() {
+      const rows = [["vehicle", "timestamp", "rpm", "speed_kph", "engine_temp_c", "fuel_pct", "fault_code", "health"]];
+      for (const [name, item] of vehicles) {
+        for (const point of item.history) {
+          rows.push([name, new Date(point.time).toISOString(), item.rpm, item.speed_kph, point.temperature, item.fuel_pct, item.fault_code, healthFor(item, point.time)]);
+        }
+      }
+      const csv = rows.map((row) => row.map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(",")).join("\r\n");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      link.download = `fleet-telemetry-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    byId("vehicleSelect").addEventListener("change", (event) => {
+      selectedVehicle = event.target.value;
+      renderFleet(Date.now());
+      renderChart();
+    });
+    byId("searchInput").addEventListener("input", (event) => {
+      searchQuery = event.target.value;
+      renderFleet(Date.now());
+    });
+    byId("statusFilter").addEventListener("change", (event) => {
+      statusFilter = event.target.value;
+      renderFleet(Date.now());
+    });
+    byId("exportButton").addEventListener("click", exportCsv);
+    window.addEventListener("resize", renderChart);
+    setInterval(() => {
+      byId("clock").textContent = new Date().toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      renderDashboard();
+    }, 1000);
+    byId("clock").textContent = new Date().toLocaleString([], { weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  </script>
+</body>
+</html>
