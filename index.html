@@ -196,8 +196,8 @@
       </div>
       <div class="table-scroll">
         <table>
-          <thead><tr><th>Vehicle</th><th>Engine RPM</th><th>Speed</th><th>Temperature</th><th>Fuel</th><th>Fault code</th><th>Health</th><th>Last seen</th></tr></thead>
-          <tbody id="vehicleRows"><tr><td class="empty-row" colspan="8">Waiting for simulator telemetry…</td></tr></tbody>
+          <thead><tr><th>Vehicle</th><th>Environment</th><th>Engine RPM</th><th>Speed</th><th>Temperature</th><th>Fuel</th><th>Fault code</th><th>Health</th><th>Last seen</th></tr></thead>
+          <tbody id="vehicleRows"><tr><td class="empty-row" colspan="9">Waiting for simulator telemetry…</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -249,6 +249,12 @@
       vehicles.set(reading.vehicle, record);
       if (!selectedVehicle) selectedVehicle = reading.vehicle;
       updateVehicleOptions();
+      if (previous && previous.critical && !record.critical) {
+        for (const alert of alerts) {
+          if (alert.vehicle === record.vehicle && !alert.resolved) alert.resolved = true;
+        }
+        if (alerts.some((alert) => alert.id === bannerAlertId && alert.resolved)) bannerAlertId = null;
+      }
       if (record.critical && (!previous || !previous.critical)) registerAlert(record.vehicle, Number(record.engine_temp_c));
       renderDashboard();
     }
@@ -322,7 +328,7 @@
       const items = [...vehicles.entries()]
         .map(([name, item]) => ({ name, item, health: healthFor(item, now) }))
         .filter(({ name, item, health }) =>
-          (!query || `${name} ${item.fault_code}`.toLowerCase().includes(query)) &&
+          (!query || `${name} ${item.vehicle_type || ""} ${item.environment || ""} ${item.fault_code}`.toLowerCase().includes(query)) &&
           (statusFilter === "all" || health === statusFilter))
         .sort((a, b) => {
           const order = { critical: 0, warning: 1, normal: 2, offline: 3 };
@@ -332,7 +338,7 @@
       if (!items.length) {
         const row = body.insertRow();
         const cell = row.insertCell();
-        cell.colSpan = 8;
+        cell.colSpan = 9;
         cell.className = "empty-row";
         cell.textContent = vehicles.size ? "No vehicles match these filters." : "Waiting for simulator telemetry…";
         return;
@@ -349,6 +355,9 @@
         const vehicleCell = row.insertCell();
         vehicleCell.innerHTML = `<div class="vehicle-cell"><span class="vehicle-avatar" aria-hidden="true">▰</span><span><span class="vehicle-name"></span><span class="vehicle-kind">Construction equipment</span></span></div>`;
         vehicleCell.querySelector(".vehicle-name").textContent = name;
+        vehicleCell.querySelector(".vehicle-kind").textContent = item.vehicle_type || "Construction equipment";
+        const environment = row.insertCell();
+        environment.textContent = item.environment || "Unspecified site";
         row.insertCell().textContent = Math.round(Number(item.rpm)).toLocaleString();
         row.insertCell().textContent = `${Number(item.speed_kph).toFixed(1)} km/h`;
         const temp = row.insertCell();
@@ -370,7 +379,9 @@
 
     function renderChart() {
       const item = vehicles.get(selectedVehicle);
-      byId("chartSubtitle").textContent = item ? `${selectedVehicle} · Last ${item.history.length} readings` : "Select a vehicle to view its recent trend";
+      byId("chartSubtitle").textContent = item
+        ? `${selectedVehicle} · ${item.environment || "Site not specified"} · ${item.history.length} readings`
+        : "Select a vehicle to view its recent trend";
       const canvas = byId("trendChart");
       const empty = byId("chartEmpty");
       const context = canvas.getContext("2d");
@@ -455,19 +466,20 @@
       }
       for (const alert of alerts) {
         const entry = document.createElement("div");
-        entry.className = `alert-item${alert.acknowledged ? " acknowledged" : ""}`;
+        entry.className = `alert-item${alert.acknowledged || alert.resolved ? " acknowledged" : ""}`;
         const dot = document.createElement("span");
         dot.className = "alert-item-dot";
         const copy = document.createElement("div");
         const title = document.createElement("strong");
         title.textContent = `${alert.vehicle} · Engine overheating`;
         const detail = document.createElement("small");
-        detail.textContent = `${alert.temperature.toFixed(1)} °C · ${new Date(alert.time).toLocaleTimeString()}${alert.acknowledged ? " · Acknowledged" : ""}`;
+        const state = alert.resolved ? "Resolved" : alert.acknowledged ? "Acknowledged" : "Needs attention";
+        detail.textContent = `${alert.temperature.toFixed(1)} °C · ${new Date(alert.time).toLocaleTimeString()} · ${state}`;
         copy.append(title, detail);
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = alert.acknowledged ? "ACK'D" : "ACK";
-        button.disabled = alert.acknowledged;
+        button.textContent = alert.resolved ? "DONE" : alert.acknowledged ? "ACK'D" : "ACK";
+        button.disabled = alert.acknowledged || alert.resolved;
         button.setAttribute("aria-label", `Acknowledge alert for ${alert.vehicle}`);
         button.addEventListener("click", () => acknowledgeAlert(alert.id));
         entry.append(dot, copy, button);
@@ -477,7 +489,7 @@
 
     function updateBanner() {
       const banner = byId("alertBanner");
-      const alert = alerts.find((item) => item.id === bannerAlertId && !item.acknowledged);
+      const alert = alerts.find((item) => item.id === bannerAlertId && !item.acknowledged && !item.resolved);
       banner.classList.toggle("visible", Boolean(alert));
       if (!alert) return;
       byId("bannerMessage").textContent = `${alert.vehicle} engine at ${alert.temperature.toFixed(1)} °C — stop equipment and inspect.`;
@@ -494,10 +506,10 @@
     }
 
     function exportCsv() {
-      const rows = [["vehicle", "timestamp", "rpm", "speed_kph", "engine_temp_c", "fuel_pct", "fault_code", "health"]];
+      const rows = [["vehicle", "vehicle_type", "environment", "timestamp", "rpm", "speed_kph", "engine_temp_c", "fuel_pct", "fault_code", "health"]];
       for (const [name, item] of vehicles) {
         for (const point of item.history) {
-          rows.push([name, new Date(point.time).toISOString(), item.rpm, item.speed_kph, point.temperature, item.fuel_pct, item.fault_code, healthFor(item, point.time)]);
+          rows.push([name, item.vehicle_type || "", item.environment || "", new Date(point.time).toISOString(), item.rpm, item.speed_kph, point.temperature, item.fuel_pct, item.fault_code, healthFor(item, point.time)]);
         }
       }
       const csv = rows.map((row) => row.map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(",")).join("\r\n");
